@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Million Dollar Hour</title>
+    <title>Million Dollar Hour | Focus Protocol</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,82 +11,175 @@
             theme: {
                 extend: {
                     colors: {
-                        darkBg: '#0f172a',
-                        cardBg: '#1e293b',
-                        accentGold: '#f59e0b'
+                        darkBg: '#0b0f19',
+                        cardBg: '#131c2e',
+                        accentGold: '#d97706',
+                        borderSubtle: '#1e293b'
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', monospace]
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col justify-between font-sans">
-
-    <!-- Header -->
-    <header class="w-full p-4 border-b border-slate-800 flex justify-between items-center max-w-md mx-auto">
-        <h1 id="app-title" class="font-bold text-lg tracking-wider text-accentGold">MILLION $ HOUR</h1>
-        <button onclick="openUpgradeModal()" class="text-xs bg-accentGold text-slate-950 font-semibold px-3 py-1.5 rounded-full">Pro</button>
+<body class="bg-darkBg text-slate-200 min-h-screen flex flex-col justify-between font-sans selection:bg-accentGold selection:text-slate-950">
+    
+    <!-- Top Header -->
+    <header class="w-full px-6 py-4 border-b border-borderSubtle flex justify-between items-center max-w-md mx-auto">
+        <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+            <h1 class="font-bold text-sm tracking-widest text-amber-500 uppercase">Million $ Hour</h1>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div id="coin-badge" class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono px-2.5 py-1 rounded-full">🪙 <span id="coin-count">0</span></div>
+            <button onclick="openProModal()" class="text-xs bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold px-3 py-1 rounded-full shadow-lg shadow-amber-500/10">PRO</button>
+        </div>
     </header>
 
     <!-- Main App Container -->
-    <main class="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center">
+    <main class="w-full max-w-md mx-auto p-5 flex-1 flex flex-col justify-center">
         
         <!-- Home Screen -->
         <div id="screen-home" class="space-y-6 text-center">
-            <div class="bg-cardBg p-6 rounded-2xl border border-slate-800 shadow-xl">
-                <h2 class="text-xl font-bold mb-2">60-Min Deep Work Box</h2>
-                <p class="text-sm text-slate-400 mb-6">5m Plan | 50m Focus | 5m Review</p>
-                <div id="session-counter" class="text-xs text-slate-400 mb-4">Free sessions left today: 2/2</div>
-                <button onclick="startSession()" class="w-full bg-accentGold text-slate-950 font-bold py-3.5 rounded-xl shadow-lg transition transform active:scale-95">Start Hour</button>
+            <div class="bg-cardBg p-7 rounded-2xl border border-borderSubtle shadow-2xl relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
+                <h2 class="text-xl font-bold tracking-tight mb-2 text-white">30-Min Deep Work Box</h2>
+                <p class="text-xs text-slate-400 mb-6 font-mono">Fast Execution &bull; High Focus</p>
+                <div id="session-counter" class="text-xs font-mono text-slate-400 bg-darkBg py-2 px-3 rounded-lg border border-borderSubtle mb-6">Free sessions left today: <span id="sessions-left" class="text-amber-400 font-bold">2</span>/2</div>
+                <button onclick="goToPlanning()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-4 rounded-xl shadow-lg shadow-amber-500/20 transition transform active:scale-95 tracking-wide text-sm">Start Deep Hour</button>
             </div>
         </div>
 
-        <!-- Planning Screen (0-5 min) -->
-        <div id="screen-planning" class="hidden space-y-4">
-            <h3 class="text-md font-semibold text-accentGold">Step 1: Plan Your Hour (1 to 5 Tasks)</h3>
-            <div id="task-inputs" class="space-y-2">
-                <input type="text" placeholder="Task 1" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
-                <input type="text" placeholder="Task 2" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
-                <input type="text" placeholder="Task 3" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
+        <!-- Planning Screen -->
+        <div id="screen-planning" class="hidden space-y-5">
+            <div class="space-y-1">
+                <h3 class="text-sm font-bold text-amber-500 tracking-wider uppercase">Step 1: Define Target Tasks</h3>
+                <p class="text-xs text-slate-400">List 1 to 3 critical high-leverage execution steps.</p>
             </div>
-            <button onclick="lockPlan()" class="w-full bg-accentGold text-slate-950 font-bold py-3 rounded-xl mt-4">Lock Plan & Start Focus</button>
+            <div id="task-inputs" class="space-y-3">
+                <input type="text" id="task-1" placeholder="Primary task (e.g., Code core feature)" class="w-full p-3.5 bg-cardBg border border-borderSubtle rounded-xl text-sm text-slate-200 focus:outline-none focus:border-amber-500 font-mono">
+                <input type="text" id="task-2" placeholder="Secondary task (optional)" class="w-full p-3.5 bg-cardBg border border-borderSubtle rounded-xl text-sm text-slate-200 focus:outline-none focus:border-amber-500 font-mono">
+                <input type="text" id="task-3" placeholder="Third task (optional)" class="w-full p-3.5 bg-cardBg border border-borderSubtle rounded-xl text-sm text-slate-200 focus:outline-none focus:border-amber-500 font-mono">
+            </div>
+            <button onclick="lockPlanAndStartTimer()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20 text-sm tracking-wide">Lock Plan & Begin Focus</button>
         </div>
 
-        <!-- Deep Work Screen (5-55 min) -->
+        <!-- Work/Timer Screen -->
         <div id="screen-work" class="hidden text-center space-y-6">
-            <h3 class="text-sm text-slate-400 uppercase tracking-widest">Deep Work in Progress</h3>
-            <div id="timer-display" class="text-6xl font-black text-accentGold tracking-tight">50:00</div>
-            <p id="current-focus-task" class="text-sm text-slate-300 bg-cardBg p-3 rounded-lg border border-slate-800">Focusing...</p>
+            <div class="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-xs font-mono text-amber-400 uppercase tracking-widest animate-pulse">Deep Work Protocol Active</div>
+            <div id="timer-display" class="text-6xl font-black font-mono text-amber-500 tracking-tighter drop-shadow-lg">30:00</div>
+            <div class="bg-cardBg p-4 rounded-xl border border-borderSubtle text-left space-y-2">
+                <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Active Execution Target:</div>
+                <div id="active-task-label" class="text-sm text-slate-200 font-mono">Focusing on deep execution...</div>
+            </div>
+            <button onclick="abortSession()" class="text-xs text-slate-500 hover:text-slate-400 underline pt-2">Abort Session</button>
         </div>
 
+        <!-- Complete / Review Screen -->
+        <div id="screen-complete" class="hidden text-center space-y-6">
+            <div class="bg-cardBg p-6 rounded-2xl border border-borderSubtle space-y-4">
+                <div class="text-3xl">&#127881;</div>
+                <h3 class="text-lg font-bold text-white">Session Completed!</h3>
+                <p class="text-xs text-slate-400">Great execution. You earned reward coins for protecting your focus.</p>
+                <div id="reward-earned" class="text-xl font-mono font-bold text-amber-400">+100 Coins</div>
+                <button onclick="resetToHome()" class="w-full bg-amber-500 text-slate-950 font-bold py-3.5 rounded-xl text-sm">Return Home</button>
+            </div>
+        </div>
     </main>
 
-    <!-- Footer Note -->
-    <footer class="w-full p-3 text-center text-[10px] text-slate-500 border-t border-slate-800/50">
-        Virtual score, real money nahi. Built for deep focus.
+    <!-- Footer -->
+    <footer class="w-full p-4 text-center text-[10px] text-slate-500 border-t border-borderSubtle font-mono">
+        FOCUS PROTOCOL &bull; Virtual score, real discipline.
     </footer>
 
-    <!-- Basic Script Hooks -->
-    <script src="config.js"></script>
+    <!-- App Logic -->
     <script>
-        function verifyLicense(licenseKey) {
-            console.log("Verifying license key:", licenseKey);
+        let sessionTimer = null;
+        let totalSeconds = 30 * 60; // 30 minutes focus timer set here
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCoinDisplay();
+        });
+
+        function updateCoinDisplay() {
+            let coins = localStorage.getItem('mdh_coins') || '0';
+            document.getElementById('coin-count').innerText = coins;
         }
 
-        function startSession() {
+        function goToPlanning() {
+            let today = new Date().toDateString();
+            let savedDate = localStorage.getItem('mdh_date');
+            let sessionCount = parseInt(localStorage.getItem('mdh_count') || '0');
+            if (savedDate !== today) {
+                localStorage.setItem('mdh_date', today);
+                localStorage.setItem('mdh_count', '0');
+                sessionCount = 0;
+            }
+            if (sessionCount >= 2) {
+                alert("Free daily limit reached! Upgrade to Pro for unlimited sessions.");
+                return;
+            }
             document.getElementById('screen-home').classList.add('hidden');
             document.getElementById('screen-planning').classList.remove('hidden');
         }
 
-        function lockPlan() {
+        function lockPlanAndStartTimer() {
+            let t1 = document.getElementById('task-1').value.trim();
+            if(!t1) {
+                alert("Please enter at least one primary task!");
+                return;
+            }
+            document.getElementById('active-task-label').innerText = t1;
             document.getElementById('screen-planning').classList.add('hidden');
             document.getElementById('screen-work').classList.remove('hidden');
+            
+            let count = parseInt(localStorage.getItem('mdh_count') || '0');
+            localStorage.setItem('mdh_count', count + 1);
+
+            totalSeconds = 30 * 60; // 30 minutes reset
+            sessionTimer = setInterval(updateCountdown, 1000);
         }
 
-        function openUpgradeModal() {
-            alert("Pro Upgrade modal coming soon via Payhip!");
+        function updateCountdown() {
+            if (totalSeconds <= 0) {
+                clearInterval(sessionTimer);
+                finishSession();
+                return;
+            }
+            totalSeconds--;
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+            document.getElementById('timer-display').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function finishSession() {
+            let currentCoins = parseInt(localStorage.getItem('mdh_coins') || '0');
+            let newCoins = currentCoins + 100;
+            localStorage.setItem('mdh_coins', newCoins);
+            document.getElementById('screen-work').classList.add('hidden');
+            document.getElementById('screen-complete').classList.remove('hidden');
+            updateCoinDisplay();
+        }
+
+        function abortSession() {
+            if(confirm("Are you sure you want to abort this focus block?")) {
+                clearInterval(sessionTimer);
+                resetToHome();
+            }
+        }
+
+        function resetToHome() {
+            document.getElementById('screen-work').classList.add('hidden');
+            document.getElementById('screen-planning').classList.add('hidden');
+            document.getElementById('screen-complete').classList.add('hidden');
+            document.getElementById('screen-home').classList.remove('hidden');
+        }
+
+        function openProModal() {
+            alert("Million Dollar Hour Pro - Unlimited sessions & advanced analytics coming soon via Whop/Gumroad!");
         }
     </script>
 </body>
-              </html>
-              
+</html>
