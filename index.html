@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Million Dollar Hour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        accentGold: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+    <!-- Header -->
+    <header class="w-full p-4 border-b border-slate-800 flex justify-between items-center max-w-md mx-auto">
+        <h1 id="app-title" class="font-bold text-lg tracking-wider text-accentGold">MILLION $ HOUR</h1>
+        <button onclick="openUpgradeModal()" class="text-xs bg-accentGold text-slate-950 font-semibold px-3 py-1.5 rounded-full">Pro</button>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center">
+        
+        <!-- Home Screen -->
+        <div id="screen-home" class="space-y-6 text-center">
+            <div class="bg-cardBg p-6 rounded-2xl border border-slate-800 shadow-xl">
+                <h2 class="text-xl font-bold mb-2">60-Min Deep Work Box</h2>
+                <p class="text-sm text-slate-400 mb-6">5m Plan | 50m Focus | 5m Review</p>
+                <div id="session-counter" class="text-xs text-slate-400 mb-4">Free sessions left today: 2/2</div>
+                <button onclick="startSession()" class="w-full bg-accentGold text-slate-950 font-bold py-3.5 rounded-xl shadow-lg transition transform active:scale-95">Start Hour</button>
+            </div>
+        </div>
+
+        <!-- Planning Screen (0-5 min) -->
+        <div id="screen-planning" class="hidden space-y-4">
+            <h3 class="text-md font-semibold text-accentGold">Step 1: Plan Your Hour (1 to 5 Tasks)</h3>
+            <div id="task-inputs" class="space-y-2">
+                <input type="text" placeholder="Task 1" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
+                <input type="text" placeholder="Task 2" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
+                <input type="text" placeholder="Task 3" class="w-full p-3 bg-cardBg border border-slate-700 rounded-lg text-sm focus:outline-none focus:border-accentGold">
+            </div>
+            <button onclick="lockPlan()" class="w-full bg-accentGold text-slate-950 font-bold py-3 rounded-xl mt-4">Lock Plan & Start Focus</button>
+        </div>
+
+        <!-- Deep Work Screen (5-55 min) -->
+        <div id="screen-work" class="hidden text-center space-y-6">
+            <h3 class="text-sm text-slate-400 uppercase tracking-widest">Deep Work in Progress</h3>
+            <div id="timer-display" class="text-6xl font-black text-accentGold tracking-tight">50:00</div>
+            <p id="current-focus-task" class="text-sm text-slate-300 bg-cardBg p-3 rounded-lg border border-slate-800">Focusing...</p>
+        </div>
+
+    </main>
+
+    <!-- Footer Note -->
+    <footer class="w-full p-3 text-center text-[10px] text-slate-500 border-t border-slate-800/50">
+        Virtual score, real money nahi. Built for deep focus.
+    </footer>
+
+    <!-- Basic Script Hooks -->
+    <script src="config.js"></script>
+    <script>
+        function verifyLicense(licenseKey) {
+            console.log("Verifying license key:", licenseKey);
+        }
+
+        function startSession() {
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-planning').classList.remove('hidden');
+        }
+
+        function lockPlan() {
+            document.getElementById('screen-planning').classList.add('hidden');
+            document.getElementById('screen-work').classList.remove('hidden');
+        }
+
+        function openUpgradeModal() {
+            alert("Pro Upgrade modal coming soon via Payhip!");
+        }
+    </script>
+</body>
+              </html>
+              
