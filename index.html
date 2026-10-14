@@ -1,189 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Million Dollar Hour | Value Vault</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #0b0f19; color: #e2e8f0; font-family: monospace; overflow-x: hidden; }
-        .card { background-color: #131c2e; border: 1px solid #1e293b; }
-        @keyframes floatBot {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(3deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
-        }
-        .bot-float { animation: floatBot 4s ease-in-out infinite; }
-        @keyframes fallCash {
-            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-        }
-        .cash-note { position: fixed; top: -50px; font-size: 24px; animation: fallCash 2.5s linear forwards; z-index: 100; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Million $ Hour</title>
+  <meta name="description" content="A 1-hour focus game: plan 5 min, deep work 50 min, review 5 min. Finish your plan, earn your hour's value, level up.">
+  <meta name="theme-color" content="#080c1b">
+  <meta property="og:title" content="Million $ Hour">
+  <meta property="og:description" content="Plan 5 min. Focus 50. Review 5. Level up your hour.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 relative">
-    
-    <!-- Floating Assistant Bot ("Aura") -->
-    <div id="assistant-bot" class="fixed bottom-6 right-6 z-50 bot-float flex items-center bg-cardBg border border-amber-500/40 px-3 py-2 rounded-full shadow-2xl cursor-pointer">
-        <span class="text-lg mr-2">🤖</span>
-        <div class="text-[11px]">
-            <div class="font-bold text-amber-400">Aura (AI)</div>
-            <div id="bot-message" class="text-slate-300">Protect the hour! 💼</div>
-        </div>
+<body data-phase="idle">
+<div class="bg-glow" aria-hidden="true"></div>
+<main class="app">
+
+  <header class="hud">
+    <div class="brand">Million <span class="gold">$</span> Hour</div>
+    <div class="row">
+      <span id="proBadge" class="pro-badge hidden">PRO</span>
+      <button id="installBtn" class="pill-btn hidden">Install</button>
+      <button id="authBtn" class="pill-btn hidden">Login</button>
+      <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙</button>
     </div>
+  </header>
 
-    <!-- Header -->
-    <header class="w-full max-w-md mx-auto py-3 border-b border-slate-800 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-            <h1 class="font-bold text-xs tracking-widest text-amber-500 uppercase">Million $ Hour</h1>
+  <section class="card player" aria-label="Your level">
+    <div id="lvlNum" class="lvl-badge">1</div>
+    <div class="grow">
+      <div class="xp-row"><b id="lvlTitle">Rookie</b><span id="xpText" class="muted">0 / 50 XP</span></div>
+      <div class="bar"><div id="xpBar"></div></div>
+    </div>
+    <div class="chips">
+      <div class="chip" title="Day streak">🔥 <span id="statStreak">0</span></div>
+      <div class="chip" title="Total value earned (virtual)">💰 $<span id="statVault">0</span></div>
+    </div>
+  </section>
+
+  <div class="stack" style="margin-top:1rem">
+
+    <!-- Timer ring (visible while a session runs) -->
+    <section id="timerCard" class="card timer hidden">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 200 200" class="ring" aria-hidden="true">
+          <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+          <circle id="ringFg" class="ring-fg" cx="100" cy="100" r="88"></circle>
+        </svg>
+        <div class="ring-center">
+          <div id="phaseLabel" class="phase-label">Planning</div>
+          <div id="clock" class="clock" role="timer">05:00</div>
+          <div id="phaseHint" class="phase-hint"></div>
         </div>
-        <div class="flex items-center space-x-3">
-            <div class="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-full">💵 $<span id="wallet-balance">0</span></div>
-            <button onclick="alert('Pro Vault Edition Active!')" class="text-xs bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded-full">PRO</button>
+      </div>
+      <div class="hourbar" aria-hidden="true">
+        <div class="seg-plan"></div><div class="seg-work"></div><div class="seg-review"></div>
+        <div id="progCover" class="hourbar-cover" style="width:100%"></div>
+      </div>
+      <div class="timer-actions">
+        <button id="pauseBtn" class="pill-btn">Pause</button>
+        <button id="cancelBtn" class="pill-btn muted">Cancel</button>
+      </div>
+    </section>
+
+    <!-- IDLE -->
+    <section id="p-idle" class="stack">
+      <div class="card hero">
+        <div class="eyebrow">Your hour is worth</div>
+        <div class="hero-value">$<span id="heroValue">50</span></div>
+        <button id="editValueBtn" class="link">change value</button>
+        <p class="hero-sub">Finish your plan and review it honestly to earn that value. No review, no reward.</p>
+        <button id="startBtn" class="btn btn-primary btn-xl">Start the Hour</button>
+        <div id="limitNote" class="hidden unlock off" style="margin-top:.8rem">
+          Free plan: <span id="limitN">3</span> hours/day.
+          <button id="upgradeBtn" class="link">Upgrade to Pro</button>
         </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="w-full max-w-md mx-auto my-auto p-2">
-        
-        <!-- Home Screen -->
-        <div id="screen-home" class="space-y-6 text-center">
-            <div class="card p-6 rounded-2xl shadow-xl space-y-4">
-                <h2 class="text-lg font-bold text-white tracking-wide">30-Min Value Vault</h2>
-                <p class="text-xs text-slate-400">Time &bull; Focus &bull; Wealth</p>
-                <button onclick="goToPlanning()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-sm tracking-wider shadow-lg shadow-amber-500/20">Open Vault & Begin</button>
-            </div>
+        <div class="quest">
+          <div><b>5</b>min plan</div>
+          <div><b>50</b>min focus</div>
+          <div><b>5</b>min review</div>
         </div>
+      </div>
 
-        <!-- Planning Screen -->
-        <div id="screen-planning" class="hidden space-y-4">
-            <h3 class="text-xs font-bold text-amber-500 uppercase tracking-wider">Step 1: Set High-Value Target</h3>
-            <div class="space-y-3">
-                <input type="text" id="task-1" placeholder="Primary task (e.g., Code & Build)" class="w-full p-3 card rounded-xl text-sm text-slate-200 outline-none focus:border-amber-500">
-                <input type="text" id="task-2" placeholder="Secondary task (optional)" class="w-full p-3 card rounded-xl text-sm text-slate-200 outline-none focus:border-amber-500">
-            </div>
-            <button onclick="startVaultSession()" class="w-full bg-amber-500 text-slate-950 font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-amber-500/20">Seal Vault & Start Focus</button>
+      <div class="stats">
+        <div class="card stat"><b id="statToday">0</b><span>today</span></div>
+        <div class="card stat"><b id="statBest">0</b><span>best streak</span></div>
+        <div class="card stat"><b id="statHours">0</b><span>hours done</span></div>
+      </div>
+
+      <div id="lastResult" class="card hidden"></div>
+
+      <div class="card">
+        <h2>Badges <span id="badgeCount" class="muted small"></span></h2>
+        <div id="badgeGrid" class="badges"></div>
+      </div>
+
+      <div class="card">
+        <h2>Recent hours</h2>
+        <ul id="historyList" class="plain small" style="margin-top:.6rem"></ul>
+        <p id="historyEmpty" class="sub">No hours yet. Your first one is waiting.</p>
+      </div>
+    </section>
+
+    <!-- PLAN -->
+    <section id="p-plan" class="stack hidden">
+      <div class="card">
+        <h2 style="color:var(--gold)">Plan the hour</h2>
+        <p class="sub">What will you finish in the next 60 minutes? Small, clear tasks.</p>
+        <form id="taskForm" class="row" style="margin-top:.8rem">
+          <input id="taskInput" class="input" type="text" maxlength="120" autocomplete="off" placeholder="Write a task…" aria-label="Task">
+          <button class="pill-btn" style="min-height:46px;background:var(--gold);color:#1a1300;font-weight:800;border-color:var(--gold)">Add</button>
+        </form>
+        <div id="carryBox" class="hidden" style="margin-top:.8rem">
+          <div class="small muted">Unfinished from last hour (tap to add):</div>
+          <div id="carryList" class="chips-wrap"></div>
         </div>
+        <ul id="planList" class="plain" style="margin-top:.8rem"></ul>
+        <p class="small muted" style="margin:.6rem 0 0">Max 10 tasks.</p>
+      </div>
+      <div class="card">
+        <label class="field" for="rewardInput">Reward if you finish 70%+</label>
+        <input id="rewardInput" class="input" type="text" maxlength="100" placeholder="e.g. 15 min game / chai / walk">
+        <p id="planValue" class="small muted" style="margin:.6rem 0 0"></p>
+      </div>
+      <button id="skipPlanBtn" class="btn btn-outline phase">Plan ready, start focus now</button>
+      <p class="small muted center" style="margin:0">The hour is fixed. Skipping ahead does not add time.</p>
+    </section>
 
-        <!-- Timer Screen -->
-        <div id="screen-work" class="hidden text-center space-y-6">
-            <div class="inline-block px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full text-[10px] text-amber-400 uppercase tracking-widest animate-pulse">Value Vault Sealed</div>
-            <div id="timer-display" class="text-6xl font-black text-amber-500 tracking-tighter">30:00</div>
-            <div class="card p-4 rounded-xl text-left space-y-1">
-                <div class="text-[10px] text-slate-400 uppercase tracking-wider">Target Asset:</div>
-                <div id="active-task-label" class="text-xs text-slate-200">Executing focus block...</div>
-            </div>
-            <button onclick="resetApp()" class="text-xs text-slate-500 underline">Abort Session</button>
+    <!-- WORK -->
+    <section id="p-work" class="stack hidden">
+      <div class="card">
+        <h2 style="color:var(--violet)">Only these. Nothing else.</h2>
+        <ul id="workList" class="plain" style="margin-top:.8rem"></ul>
+        <p id="workReward" class="small muted" style="margin:.8rem 0 0"></p>
+      </div>
+      <div class="card">
+        <h2 class="small" style="color:var(--muted)">Parking lot</h2>
+        <p class="small muted" style="margin:.2rem 0 .6rem">An idea or distraction popped up? Park it here. Deal with it in review.</p>
+        <form id="parkForm" class="row">
+          <input id="parkInput" class="input" type="text" maxlength="120" autocomplete="off" placeholder="Park it…" aria-label="Parking lot">
+          <button class="pill-btn" style="min-height:46px">Park</button>
+        </form>
+        <ul id="parkList" class="plain small muted" style="margin-top:.6rem"></ul>
+      </div>
+      <button id="reviewNowBtn" class="btn btn-outline">I'm done early, review now</button>
+    </section>
+
+    <!-- REVIEW -->
+    <section id="p-review" class="stack hidden">
+      <div class="card">
+        <h2 style="color:var(--green)">What did you actually finish?</h2>
+        <p class="sub">Be honest. This is the only thing that earns value.</p>
+        <ul id="reviewList" class="plain" style="margin-top:.8rem"></ul>
+        <div class="meter">
+          <div id="reviewScore" class="big">0/0</div>
+          <div class="value">$<span id="reviewValue">0</span> value earned</div>
+          <div id="reviewHint" class="small muted" style="margin-top:.3rem"></div>
         </div>
+        <div id="reviewReward" class="unlock off"></div>
+      </div>
+      <div id="reviewParkBox" class="card hidden">
+        <h2 class="small" style="color:var(--muted)">From your parking lot</h2>
+        <ul id="reviewParkList" class="plain small muted" style="margin-top:.5rem"></ul>
+      </div>
+      <button id="finishBtn" class="btn btn-green">Finish the hour</button>
+    </section>
+  </div>
 
-        <!-- Complete Screen -->
-        <div id="screen-complete" class="hidden text-center space-y-5">
-            <div class="card p-6 rounded-2xl space-y-3">
-                <div class="text-3xl">&#128184;</div>
-                <h3 class="text-base font-bold text-white">Vault Unlocked!</h3>
-                <p class="text-xs text-slate-400">+$500 added to your focus wallet.</p>
-                <button onclick="resetApp()" class="w-full bg-amber-500 text-slate-950 font-bold py-3 rounded-xl text-sm">Return Home</button>
-            </div>
-        </div>
-    </main>
+  <footer class="foot">
+    <a href="privacy.html">Privacy &amp; Terms</a> · Value earned is a virtual motivator, not real money. Productivity tool, not medical advice.
+  </footer>
+</main>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-md mx-auto text-center text-[10px] text-slate-600 py-3 border-t border-slate-800">
-        MILLION $ HOUR &bull; Protect your time, build your empire.
-    </footer>
+<div id="toast" class="toast hidden" role="status"></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
 
-    <!-- Logic -->
-    <script>
-        let timer = null;
-        let seconds = 30 * 60;
-        let originalTitle = document.title;
+<dialog id="settingsDlg">
+  <form id="settingsForm" method="dialog" class="stack">
+    <h2>Settings</h2>
+    <div>
+      <label class="field" for="valueInput">What is one focused hour worth to you? ($)</label>
+      <input id="valueInput" class="input" type="number" inputmode="decimal" min="1" max="100000" step="1">
+      <p class="small muted" style="margin:.4rem 0 0">Think of your target hourly rate. It only scales your score, it is not real money.</p>
+    </div>
+    <label class="row small"><input id="soundInput" type="checkbox" style="width:1.2rem;height:1.2rem"> Sound at phase changes</label>
+    <label class="row small"><input id="vibeInput" type="checkbox" style="width:1.2rem;height:1.2rem"> Vibration</label>
+    <button type="button" id="exportBtn" class="btn btn-outline" style="min-height:42px;font-size:.9rem">Export history (CSV)</button>
+    <button type="button" id="resetBtn" class="btn btn-outline" style="min-height:42px;font-size:.9rem;color:var(--red);border-color:rgba(251,113,133,.4)">Delete all my data</button>
+    <button class="btn btn-primary" style="min-height:46px">Save</button>
+  </form>
+</dialog>
 
-        // Bot engaging messages rotation
-        const botMessages = [
-            "Protect the hour! 💼",
-            "Focus is pure currency. ⏳",
-            "You're building an empire! 🚀",
-            "Stay locked in, boss. 💡"
-        ];
-        setInterval(() => {
-            let randomMsg = botMessages[Math.floor(Math.random() * botMessages.length)];
-            document.getElementById('bot-message').innerText = randomMsg;
-        }, 8000);
+<dialog id="authDlg">
+  <form id="authForm" class="stack">
+    <h2>Login (email link)</h2>
+    <p class="sub">No password. We email you a login link.</p>
+    <input id="emailInput" class="input" type="email" required autocomplete="email" placeholder="you@example.com">
+    <p id="authMsg" class="small muted" style="min-height:1.2rem;margin:0"></p>
+    <div class="row">
+      <button class="btn btn-primary" style="min-height:44px">Send link</button>
+      <button type="button" id="authClose" class="pill-btn" style="min-height:44px">Close</button>
+    </div>
+  </form>
+</dialog>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            let savedWallet = localStorage.getItem('mdh_wallet') || '0';
-            document.getElementById('wallet-balance').innerText = savedWallet;
-        });
+<dialog id="resultDlg">
+  <div id="resultBody"></div>
+</dialog>
 
-        function goToPlanning() {
-            document.getElementById('screen-home').classList.add('hidden');
-            document.getElementById('screen-planning').classList.remove('hidden');
-            document.getElementById('bot-message').innerText = "Define your targets! 🎯";
-        }
-
-        function startVaultSession() {
-            let t1 = document.getElementById('task-1').value.trim();
-            if(!t1) {
-                alert("Please enter at least one task!");
-                return;
-            }
-            document.getElementById('active-task-label').innerText = t1;
-            document.getElementById('screen-planning').classList.add('hidden');
-            document.getElementById('screen-work').classList.remove('hidden');
-            document.getElementById('bot-message').innerText = "Vault is locked. Let's work! 🔥";
-            
-            seconds = 30 * 60;
-            timer = setInterval(runVaultClock, 1000);
-        }
-
-        function runVaultClock() {
-            if (seconds <= 0) {
-                clearInterval(timer);
-                triggerSuccessCelebration();
-                return;
-            }
-            seconds--;
-            let m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            let s = (seconds % 60).toString().padStart(2, '0');
-            let timeStr = m + ":" + s;
-            
-            document.getElementById('timer-display').innerText = timeStr;
-            // Dynamic tab title so time is visible even when tab is in background
-            document.title = `⏳ [${timeStr}] Million $ Hour`;
-        }
-
-        function triggerSuccessCelebration() {
-            document.title = originalTitle;
-            let currentWallet = parseInt(localStorage.getItem('mdh_wallet') || '0') + 500;
-            localStorage.setItem('mdh_wallet', currentWallet);
-            document.getElementById('wallet-balance').innerText = currentWallet;
-
-            document.getElementById('screen-work').classList.add('hidden');
-            document.getElementById('screen-complete').classList.remove('hidden');
-            document.getElementById('bot-message').innerText = "Legendary work! Cash dropped! 🎉💵";
-
-            // Falling cash animation
-            for(let i=0; i<15; i++) {
-                let note = document.createElement('div');
-                note.className = 'cash-note';
-                note.innerHTML = ['💵', '💶', '🪙', '💎'][Math.floor(Math.random()*4)];
-                note.style.left = Math.random() * 100 + 'vw';
-                note.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
-                document.body.appendChild(note);
-                setTimeout(() => note.remove(), 3000);
-            }
-        }
-
-        function resetApp() {
-            clearInterval(timer);
-            document.title = originalTitle;
-            document.getElementById('screen-work').classList.add('hidden');
-            document.getElementById('screen-planning').classList.add('hidden');
-            document.getElementById('screen-complete').classList.add('hidden');
-            document.getElementById('screen-home').classList.remove('hidden');
-            document.getElementById('bot-message').innerText = "Ready for next block? ⚡";
-        }
-    </script>
+<script src="config.js"></script>
+<script src="logic.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 </body>
 </html>
