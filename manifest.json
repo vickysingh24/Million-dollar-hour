@@ -1,0 +1,15 @@
+{
+  "name": "Million $ Hour",
+  "short_name": "$ Hour",
+  "description": "A 1-hour focus game: plan 5 min, deep work, review and reward 5 min.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080c1b",
+  "theme_color": "#080c1b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
